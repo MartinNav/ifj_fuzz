@@ -1,4 +1,4 @@
-use std::{char, fs::File, io::Write, process::Command};
+use std::{char, fs::{File, OpenOptions}, io::Write, process::Command};
 
 use rand::{rngs::ThreadRng, RngCore};
 
@@ -12,14 +12,15 @@ fn generate_random_str_of_rn_len(rng:&mut ThreadRng)->Vec<u8>{
     res
 }
 static FILE_NAME:&str="code.zig";
-static EXECUTABLE:&str="execut";
+static EXECUTABLE:&str="./compiler";
 fn main() {
     let mut num_of_cycles=6669;
     let mut rng = rand::thread_rng();
     File::create(FILE_NAME).expect("file code.zig can not be created");
     loop {
         let random_chars =generate_random_str_of_rn_len(&mut rng);
-        let mut file = File::open(FILE_NAME).expect("can not open file");
+        //let mut file = File::open(FILE_NAME).expect("can not open file");
+        let mut file = OpenOptions::new().write(true).truncate(true).open(FILE_NAME).expect("can not open file");
         file.write_all(&random_chars[..]).expect("file can not be written");
         
         let status = Command::new(EXECUTABLE).arg(FILE_NAME).status().expect("ERROR:failed to execute the program");
@@ -31,11 +32,10 @@ fn main() {
         }else {
             //here we should have SEGFAULT or error like that
             println!("{num_of_cycles}:signal failure(really bad)");
-            let mut failure_case_file = File::create(format!("signal_failure{num_of_cycles}.zig")).unwrap();
+            let mut failure_case_file = File::create(format!("signal_failure_{num_of_cycles}.zig")).unwrap();
             failure_case_file.write_all(&random_chars[..]).unwrap();
-
         }
-
+        
         
         if num_of_cycles==0 {
             break;
