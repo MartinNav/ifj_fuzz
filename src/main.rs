@@ -41,7 +41,6 @@ fn parse_arguments(args:&Vec<String>)->Option<(Mode,String,String,usize)>{
     None
 }
 static FILE_NAME:&str="code.zig";
-static EXECUTABLE:&str="./compiler";
 fn main() {
     let args:Vec<String> = std::env::args().collect();
     let (mode,executable, dir_name,mut num_of_cycles)=parse_arguments(&args).expect("Invalid arguments");
@@ -50,7 +49,7 @@ Mode::Ascii=>generate_valid_ascii_bytes,
 _=>generate_random_str_of_rn_len
     };
     let mut rng = rand::thread_rng();
-    File::create(FILE_NAME).expect("file code.zig can not be created");
+    File::create(format!("{dir_name}/{FILE_NAME}")).expect("file code.zig can not be created");
     loop {
         let random_chars =generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
