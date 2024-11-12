@@ -1,7 +1,12 @@
-use std::{char, fs::{File, OpenOptions}, io::Write, process::Command};
+use std::{char, fs::{File, OpenOptions}, io::Write, process::Command, usize};
 
 use rand::{rngs::ThreadRng, RngCore};
 
+enum Mode {
+    Ascii,
+    Bytes,
+    Tokens,
+}
 fn generate_random_str_of_rn_len(rng:&mut ThreadRng)->Vec<u8>{
     const MAX_LEN:usize=6000;
     let len:usize = (rng.next_u32()as usize)%MAX_LEN;
@@ -11,9 +16,34 @@ fn generate_random_str_of_rn_len(rng:&mut ThreadRng)->Vec<u8>{
     }
     res
 }
+ fn generate_valid_ascii_bytes(rng:&mut ThreadRng)->Vec<u8>{
+     generate_random_str_of_rn_len(rng).iter().map(|x| x & 127).collect()
+ }
+/// This function will return mode in whitch we want our code to be run
+/// Compiler binary location
+/// Directory for testing files
+/// number of testcases to be generated
+fn parse_arguments(args:&Vec<String>)->Option<(Mode,String,String,usize)>{
+    if args.len()!=5 {
+        return None;
+    }
+    let mode = match args[1].as_str() {
+        "ascii"=>Mode::Ascii,
+        "bytes"=>Mode::Bytes,
+        "tokens"=>Mode::Tokens,
+       _=>Mode::Bytes 
+    };
+    let compiler_location = args[2].clone();
+    let files_directory = args[3].clone();
+    if let Ok(v) = args[4].as_str().parse::<usize>(){
+        return Some((mode,compiler_location,files_directory,v));
+    }
+    None
+}
 static FILE_NAME:&str="code.zig";
 static EXECUTABLE:&str="./compiler";
 fn main() {
+    let args:Vec<String> = std::env::args().collect();
     let mut num_of_cycles=6669;
     let mut rng = rand::thread_rng();
     File::create(FILE_NAME).expect("file code.zig can not be created");
