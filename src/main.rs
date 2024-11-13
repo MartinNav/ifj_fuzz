@@ -25,7 +25,8 @@ fn generate_random_str_of_rn_len(rng: &mut ThreadRng) -> Vec<u8> {
 fn generate_random_tokens(rng: &mut ThreadRng) -> Vec<u8> {
     const MAX_TOKS: usize = 1000;
     let len: usize = (rng.next_u32() as usize) % MAX_TOKS;
-    let tokens = ["\"", "@", "'", "f64", "i32"];
+    // Must add more tokens
+    let tokens = ["\"", "@", "'", "f64", "i32","'","return","void"," ",";",")","(",":",".","ifj"];
     let mut prep_str = String::new();
     for _ in 0..len {
         prep_str.push_str(tokens[rng.next_u32() as usize % tokens.len()]);
