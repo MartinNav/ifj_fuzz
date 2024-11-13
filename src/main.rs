@@ -16,6 +16,16 @@ fn generate_random_str_of_rn_len(rng:&mut ThreadRng)->Vec<u8>{
     }
     res
 }
+fn generate_random_tokens(rng:&mut ThreadRng)->Vec<u8>{
+    const MAX_TOKS:usize=1000;
+    let len:usize = (rng.next_u32()as usize)%MAX_TOKS;
+    let tokens=["\"","@","'","f64","i32"];
+    let mut prep_str = String::new();
+    for _ in 0..len{
+        prep_str.push_str(tokens[rng.next_u32() as usize % tokens.len()]);
+    }
+    prep_str.chars().map(|x| (x as u8)).collect::<Vec<u8>>()
+}
  fn generate_valid_ascii_bytes(rng:&mut ThreadRng)->Vec<u8>{
      generate_random_str_of_rn_len(rng).iter().map(|x| x & 127).collect()
  }
@@ -46,6 +56,7 @@ fn main() {
     let (mode,executable, dir_name,mut num_of_cycles)=parse_arguments(&args).expect("Invalid arguments");
     let generate = match mode {
 Mode::Ascii=>generate_valid_ascii_bytes,
+Mode::Tokens=>generate_random_tokens,
 _=>generate_random_str_of_rn_len
     };
     let mut rng = rand::thread_rng();
