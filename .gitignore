@@ -1,3 +1,4 @@
 /target
 signal_*
 fuzz_out/*
+compiler
