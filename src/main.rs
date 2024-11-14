@@ -79,26 +79,26 @@ fn main() {
         _ => generate_random_str_of_rn_len,
     };
     let mut rng = rand::thread_rng();
-    File::create(format!("{dir_name}/{FILE_NAME}")).expect("file code.zig can not be created");
+    File::create(format!("{dir_name}{FILE_NAME}")).expect("file code.zig can not be created");
     loop {
         let random_chars = generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
         let mut file = OpenOptions::new()
             .write(true)
             .truncate(true)
-            .open(format!("{dir_name}/{FILE_NAME}"))
+            .open(format!("{dir_name}{FILE_NAME}"))
             .expect("can not open file");
         file.write_all(&random_chars[..])
             .expect("file can not be written");
 
         let status = Command::new(executable.clone())
-            .arg(format!("{dir_name}/{FILE_NAME}"))
+            .arg(format!("{dir_name}{FILE_NAME}"))
             .status()
             .expect("ERROR:failed to execute the program");
         if let Some(code) = status.code() {
             if code == 99 {
                 let mut failure_case_file =
-                    File::create(format!("{dir_name}/internal_error_99_{num_of_cycles}.zig"))
+                    File::create(format!("{dir_name}internal_error_99_{num_of_cycles}.zig"))
                         .unwrap(); //if I fail here so be it.
                 failure_case_file.write_all(&random_chars[..]).unwrap();
             }
@@ -106,7 +106,7 @@ fn main() {
             //here we should have SEGFAULT or error like that
             println!("{num_of_cycles}:signal failure(really bad)");
             let mut failure_case_file =
-                File::create(format!("{dir_name}/signal_failure_{num_of_cycles}.zig")).unwrap();
+                File::create(format!("{dir_name}signal_failure_{num_of_cycles}.zig")).unwrap();
             failure_case_file.write_all(&random_chars[..]).unwrap();
         }
 
