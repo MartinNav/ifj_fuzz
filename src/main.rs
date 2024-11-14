@@ -1,5 +1,4 @@
 use std::{
-    char,
     fs::{File, OpenOptions},
     io::Write,
     process::Command,
@@ -26,14 +25,15 @@ fn generate_random_tokens(rng: &mut ThreadRng) -> Vec<u8> {
     const MAX_TOKS: usize = 1000;
     let len: usize = (rng.next_u32() as usize) % MAX_TOKS;
     // Must add more tokens
-    let tokens = ["\"", "@", "'", "f64", "i32","'","return","void"," ",";",")","(",":",".","ifj"," ","var","=","pub","fn","if","else","{","}","const","+","-","\n"];
+    let tokens = [
+        "\"", "@", "'", "f64", "i32", "'", "return", "void", " ", ";", ")", "(", ":", ".", "ifj",
+        " ", "var", "=", "pub", "fn", "if", "else", "{", "}", "const", "+", "-", "\n",
+    ];
     //There will be 50% chance of having valid prolog
-    let mut prep_str:String = {
+    let mut prep_str: String = {
         match rng.gen_bool(0.5) {
-            true=>
-            "const ifj = @import(\"ifj24.zig\");\n".to_string(),
-            false=>
-        String::new()
+            true => "const ifj = @import(\"ifj24.zig\");\n".to_string(),
+            false => String::new(),
         }
     };
     for _ in 0..len {
