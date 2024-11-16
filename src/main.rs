@@ -1,5 +1,10 @@
 use std::{
-    fmt::format, fs::{remove_file, File, OpenOptions}, io::Write, process::Command, sync::Mutex, usize
+    fmt::format,
+    fs::{remove_file, File, OpenOptions},
+    io::Write,
+    process::Command,
+    sync::Mutex,
+    usize,
 };
 
 use rand::{rngs::ThreadRng, Rng, RngCore};
@@ -76,10 +81,10 @@ fn main() {
         _ => generate_random_str_of_rn_len,
     };
     //let mut rng = Mutex::new(rand::thread_rng());
-        (0..num_of_cycles).into_par_iter().for_each(|i|{
-            let file_name= format!("code{i}.zig");
-    File::create(format!("{dir_name}{file_name}")).expect("file code.zig can not be created");
-    let mut rng = rand::thread_rng();
+    (0..num_of_cycles).into_par_iter().for_each(|i| {
+        let file_name = format!("code{i}.zig");
+        File::create(format!("{dir_name}{file_name}")).expect("file code.zig can not be created");
+        let mut rng = rand::thread_rng();
         let random_chars = generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
         let mut file = OpenOptions::new()
@@ -97,8 +102,7 @@ fn main() {
         if let Some(code) = status.code() {
             if code == 99 {
                 let mut failure_case_file =
-                    File::create(format!("{dir_name}internal_error_99_{i}.zig"))
-                        .unwrap(); //if I fail here so be it.
+                    File::create(format!("{dir_name}internal_error_99_{i}.zig")).unwrap(); //if I fail here so be it.
                 failure_case_file.write_all(&random_chars[..]).unwrap();
             }
         } else {
@@ -109,6 +113,5 @@ fn main() {
             failure_case_file.write_all(&random_chars[..]).unwrap();
         }
         remove_file(format!("{dir_name}{file_name}")).expect("tmp file can not be removed");
-
     });
 }
