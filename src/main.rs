@@ -1,9 +1,7 @@
 use std::{
-    fmt::format,
     fs::{remove_file, File, OpenOptions},
     io::Write,
     process::Command,
-    sync::Mutex,
     usize,
 };
 
@@ -84,6 +82,7 @@ fn main() {
     (0..num_of_cycles).into_par_iter().for_each(|i| {
         let file_name = format!("code{i}.zig");
         File::create(format!("{dir_name}{file_name}")).expect("file code.zig can not be created");
+        //this is not ideal
         let mut rng = rand::thread_rng();
         let random_chars = generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
