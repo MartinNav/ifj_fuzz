@@ -1,11 +1,9 @@
 use std::{
-    fs::{File, OpenOptions},
-    io::Write,
-    process::Command,
-    usize,
+    fs::{File, OpenOptions}, io::Write, process::Command, sync::Mutex, usize
 };
 
 use rand::{rngs::ThreadRng, Rng, RngCore};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 enum Mode {
     Ascii,
@@ -71,16 +69,17 @@ fn parse_arguments(args: &Vec<String>) -> Option<(Mode, String, String, usize)> 
 static FILE_NAME: &str = "code.zig";
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let (mode, executable, dir_name, mut num_of_cycles) =
+    let (mode, executable, dir_name, num_of_cycles) =
         parse_arguments(&args).expect("Invalid arguments");
     let generate = match mode {
         Mode::Ascii => generate_valid_ascii_bytes,
         Mode::Tokens => generate_random_tokens,
         _ => generate_random_str_of_rn_len,
     };
-    let mut rng = rand::thread_rng();
+    //let mut rng = Mutex::new(rand::thread_rng());
     File::create(format!("{dir_name}{FILE_NAME}")).expect("file code.zig can not be created");
-    loop {
+        (0..num_of_cycles).into_par_iter().for_each(|i|{
+    let mut rng = rand::thread_rng();
         let random_chars = generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
         let mut file = OpenOptions::new()
@@ -98,21 +97,17 @@ fn main() {
         if let Some(code) = status.code() {
             if code == 99 {
                 let mut failure_case_file =
-                    File::create(format!("{dir_name}internal_error_99_{num_of_cycles}.zig"))
+                    File::create(format!("{dir_name}internal_error_99_{i}.zig"))
                         .unwrap(); //if I fail here so be it.
                 failure_case_file.write_all(&random_chars[..]).unwrap();
             }
         } else {
             //here we should have SEGFAULT or error like that
-            println!("{num_of_cycles}:signal failure(really bad)");
+            println!("{i}:signal failure(really bad)");
             let mut failure_case_file =
-                File::create(format!("{dir_name}signal_failure_{num_of_cycles}.zig")).unwrap();
+                File::create(format!("{dir_name}signal_failure_{i}.zig")).unwrap();
             failure_case_file.write_all(&random_chars[..]).unwrap();
         }
 
-        if num_of_cycles == 0 {
-            break;
-        }
-        num_of_cycles -= 1;
-    }
+    });
 }
