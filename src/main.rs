@@ -1,5 +1,5 @@
 use std::{
-    fs::{File, OpenOptions}, io::Write, process::Command, sync::Mutex, usize
+    fmt::format, fs::{remove_file, File, OpenOptions}, io::Write, process::Command, sync::Mutex, usize
 };
 
 use rand::{rngs::ThreadRng, Rng, RngCore};
@@ -66,7 +66,6 @@ fn parse_arguments(args: &Vec<String>) -> Option<(Mode, String, String, usize)> 
     }
     None
 }
-static FILE_NAME: &str = "code.zig";
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let (mode, executable, dir_name, num_of_cycles) =
@@ -77,21 +76,22 @@ fn main() {
         _ => generate_random_str_of_rn_len,
     };
     //let mut rng = Mutex::new(rand::thread_rng());
-    File::create(format!("{dir_name}{FILE_NAME}")).expect("file code.zig can not be created");
         (0..num_of_cycles).into_par_iter().for_each(|i|{
+            let file_name= format!("code{i}.zig");
+    File::create(format!("{dir_name}{file_name}")).expect("file code.zig can not be created");
     let mut rng = rand::thread_rng();
         let random_chars = generate(&mut rng);
         //let mut file = File::open(FILE_NAME).expect("can not open file");
         let mut file = OpenOptions::new()
             .write(true)
             .truncate(true)
-            .open(format!("{dir_name}{FILE_NAME}"))
+            .open(format!("{dir_name}{file_name}"))
             .expect("can not open file");
         file.write_all(&random_chars[..])
             .expect("file can not be written");
 
         let status = Command::new(executable.clone())
-            .arg(format!("{dir_name}{FILE_NAME}"))
+            .arg(format!("{dir_name}{file_name}"))
             .status()
             .expect("ERROR:failed to execute the program");
         if let Some(code) = status.code() {
@@ -108,6 +108,7 @@ fn main() {
                 File::create(format!("{dir_name}signal_failure_{i}.zig")).unwrap();
             failure_case_file.write_all(&random_chars[..]).unwrap();
         }
+        remove_file(format!("{dir_name}{file_name}")).expect("tmp file can not be removed");
 
     });
 }
