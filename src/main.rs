@@ -95,7 +95,7 @@ fn main() {
             .expect("file can not be written");
 
         let status = Command::new(executable.clone())
-            .arg(format!("{dir_name}{file_name}"))
+            .arg(format!("< {dir_name}{file_name}"))
             .status()
             .expect("ERROR:failed to execute the program");
         if let Some(code) = status.code() {
